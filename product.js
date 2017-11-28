@@ -117,6 +117,7 @@ if (typeof combinations !== 'undefined' && combinations)
 $(document).ready(function()
 {
 	var url_found = checkUrl();
+	updateDisplay();
 	//init the price in relation of the selected attributes
 	if (!url_found)
 	{
@@ -366,6 +367,7 @@ $(document).on('change', '#quantity_wanted', function(e){
 		if (typeof productHasAttributes != 'undefined' && productHasAttributes){
 			updateDisplay();
 		}else{
+			updateDisplay();
 			$('#our_price_display').text(formatCurrency(parseFloat($('#our_price_display').attr('content')), currencyFormat, currencySign, currencyBlank));
 		}
 	}
@@ -731,6 +733,11 @@ function updateDisplay()
 
 		if (productAvailableForOrder == 0)
 			$('#availability_statut:visible').hide();
+	}else{
+		if(allowBuyWhenOutOfStock){$('#fabrication').show();}else{
+			$('#fabrication').hide();
+		}
+	  $('#livraison').hide();
 	}
 
 	if (selectedCombination['reference'] || productReference)

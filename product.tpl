@@ -126,18 +126,21 @@
 					<div id="thumbs_list">
 						<ul id="thumbs_list_frame">
 						{if isset($images)}
+						{*ddd($images)*}
 							{foreach from=$images item=image name=thumbnails}
+								{if $image.cover != 1}
 								{assign var=imageIds value="`$product->id`-`$image.id_image`"}
 								{if !empty($image.legend)}
 									{assign var=imageTitle value=$image.legend|escape:'html':'UTF-8'}
 								{else}
 									{assign var=imageTitle value=$product->name|escape:'html':'UTF-8'}
 								{/if}
-								<li id="thumbnail_{$image.id_image}"{if $smarty.foreach.thumbnails.last} class="last hide"{/if}>
+								<li id="thumbnail_{$image.id_image}"{if $smarty.foreach.thumbnails.last} class="last"{/if}>
 									<a{if $jqZoomEnabled && $have_image && !$content_only} href="javascript:void(0);" rel="{literal}{{/literal}gallery: 'gal1', smallimage: '{$link->getImageLink($product->link_rewrite, $imageIds, 'large_default')|escape:'html':'UTF-8'}',largeimage: '{$link->getImageLink($product->link_rewrite, $imageIds, 'thickbox_default')|escape:'html':'UTF-8'}'{literal}}{/literal}"{else} href="{$link->getImageLink($product->link_rewrite, $imageIds, 'thickbox_default')|escape:'html':'UTF-8'}"	data-fancybox-group="other-views" class="fancybox{if $image.id_image == $cover.id_image} shown {/if}"{/if} title="{$imageTitle}">
 										<img class="img-responsive" id="thumb_{$image.id_image}" src="{$link->getImageLink($product->link_rewrite, $imageIds, 'cart_default')|escape:'html':'UTF-8'}" alt="{$imageTitle}" title="{$imageTitle}"{if isset($cartSize)} height="{$cartSize.height}" width="{$cartSize.width}"{/if} itemprop="image" />
 									</a>
 								</li>
+								{/if}
 							{/foreach}
 						{/if}
 						</ul>
@@ -164,7 +167,7 @@
 		<!-- end left infos-->
 		<!-- center infos -->
 		<div class="pb-center-column col-xs-5 col-sm-6 custom_sheetDescr">
-			<div class="favPart"><a onclick=""><img src="../themes/default-bootstrap/img/icons/fav.png"></a></div>
+			<div class="favPart"><a onclick=""><img src="../themes/cider/img/icons/fav.png"></a></div>
 			{if $product->online_only}
 				<p class="online_only">{l s='Online only'}</p>
 			{/if}
@@ -217,7 +220,7 @@
 								<p class="our_price_display" itemprop="offers" itemscope itemtype="https://schema.org/Offer">{strip}
 									{if $product->quantity > 0}<link itemprop="availability" href="https://schema.org/InStock"/>{/if}
 									{if $priceDisplay >= 0 && $priceDisplay <= 2}
-										<span id="our_price_display" class="price" itemprop="price" content="{$productPrice}">{convertPrice price=$productPrice|floatval}</span>
+										<span id="our_price_display" class="price" itemprop="price" content="{$productPrice}">{convertPrice price=$productPrice|floatval} <sup>HT</sup></span>
 										<meta itemprop="priceCurrency" content="{$currency->iso_code}" />
 										{hook h="displayProductPriceBlock" product=$product type="price"}
 										{/if}
@@ -302,11 +305,11 @@
 					<div class="product_attributes clearfix">
 						<!-- quantity wanted -->
 
-						{if isset($groups)}
 							<!-- attributes -->
 							<div id="attributes">
 								<div class="clearfix"></div>
 								<fieldset class="attribute_fieldset col-xs-12">
+									{if isset($groups)}
 								{foreach from=$groups key=id_attribute_group item=group}
 									{if $group.attributes|@count}
 									<div class="col-xs-6">
@@ -354,22 +357,33 @@
 											</div> <!-- end attribute_list -->
 									{/if}
 								{/foreach}
+								{/if}
+
+									{if !$PS_CATALOG_MODE}
+									{if isset($groups)}
+									<div class="col-xs-6">
+									<p id="quantity_wanted_p"{if (!$allow_oosp && $product->quantity <= 0) || !$product->available_for_order || $PS_CATALOG_MODE} style="display: none;"{/if}>
+										{else}
+										<div class="col-xs-12">
+										<p id="quantity_wanted_p"class="quantity_wanted_p1"{if (!$allow_oosp && $product->quantity <= 0) || !$product->available_for_order || $PS_CATALOG_MODE} style="display: none;"{/if}>
+											{/if}
+
+										<!--label for="quantity_wanted">{l s='Quantity'}</label-->
+										<a href="#" data-field-qty="qty" class="btn btn-default button-minus product_quantity_down">
+											<span><i class="icon-minus"></i></span>
+										</a><!--
+										--><input type="text" min="1" name="qty" id="quantity_wanted" class="text" value="{if isset($quantityBackup)}{$quantityBackup|intval}{else}{if $product->minimal_quantity > 1}{$product->minimal_quantity}{else}1{/if}{/if}" disabled/><!--
+										--><a href="#" data-field-qty="qty" class="btn btn-default button-plus product_quantity_up" >
+											<span><i class="icon-plus"></i></span>
+										</a>
+										<span class="clearfix"></span>
+									</p>
+									{/if}
+
+								</div>
 							</fieldset>
 							</div> <!-- end attributes -->
-						{/if}
-						{if !$PS_CATALOG_MODE}
-						<p id="quantity_wanted_p"{if (!$allow_oosp && $product->quantity <= 0) || !$product->available_for_order || $PS_CATALOG_MODE} style="display: none;"{/if}>
-							<!--label for="quantity_wanted">{l s='Quantity'}</label-->
-							<a href="#" data-field-qty="qty" class="btn btn-default button-minus product_quantity_down">
-								<span><i class="icon-minus"></i></span>
-							</a><!--
-							--><input type="text" min="1" name="qty" id="quantity_wanted" class="text" value="{if isset($quantityBackup)}{$quantityBackup|intval}{else}{if $product->minimal_quantity > 1}{$product->minimal_quantity}{else}1{/if}{/if}" disabled/><!--
-							--><a href="#" data-field-qty="qty" class="btn btn-default button-plus product_quantity_up" >
-								<span><i class="icon-plus"></i></span>
-							</a>
-							<span class="clearfix"></span>
-						</p>
-						{/if}
+
 						<!-- minimal quantity wanted -->
 						<p id="minimal_quantity_wanted_p"{if $product->minimal_quantity <= 1 || !$product->available_for_order || $PS_CATALOG_MODE} style="display: none;"{/if}>
 							{l s='The minimum purchase order quantity for the product is'} <b id="minimal_quantity_label">{$product->minimal_quantity}</b>
